@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+buildDir = 'build'
+workDir = "${buildDir}/work"
+appZip = 'vertx-sockjs-sample.zip'
+vertxVersion='1.2.3.final'
+
+repositories {
+  mavenCentral()
+  add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+    name = 'vertx.io'
+    addArtifactPattern 'http://[organisation]/downloads/[module]-[revision].[ext]'
+  }
+}
+
+configurations {
+  framework
+}
+
+dependencies {
+  compile "org.vert-x:vertx-platform:1.2.3.final"
+  framework "vertx.io:vert.x:${vertxVersion}@zip"
+}
+
+task runtime(type: Copy) {
+  destinationDir file("${workDir}")
+
+  from configurations.framework
+  doLast {
+    ant.unzip(src: "${workDir}/vert.x-${vertxVersion}.zip", dest: "${workDir}")
+    ant.delete(file: "${workDir}/vert.x-${vertxVersion}.zip")
+  }
+}
+
+task module(type: Copy, dependsOn: 'runtime') {
+  destinationDir file("${workDir}")
+
+  from("${buildDir}/classes/main") {
+      into 'mods/sockjs-sample'
+  }
+  from("${buildDir}/resources/main") {
+      into 'mods/sockjs-sample'
+  }
+}
+
+task assembleModule(type: Zip, dependsOn: 'module') {
+  destinationDir = file("${buildDir}")
+  outputs.dir destinationDir
+  archiveName = "${appZip}"
+  from file("${workDir}")
+}
