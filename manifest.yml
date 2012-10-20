@@ -1,0 +1,15 @@
+--- 
+applications: 
+  build/vertx-sockjs-sample.zip: 
+    name: vertx-socks-sample
+    framework: 
+      name: standalone
+      info: 
+        mem: 64M
+        description: Standalone Application
+        exec: 
+    runtime: java7
+    command: vert.x-1.2.3.final/bin/vertx runmod sockjs-sample
+    url: vertx-socks-sample.cloudfoundry.com
+    mem: 256M
+    instances: 1
